@@ -2,10 +2,17 @@
 Python Script to query SMA Inverter via WebConnect
 
 
-~$ mkdir sma-query && cd sma-query/
+## Create Docker Container
 
-~/sma-query$ curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/Dockerfile
+```
+    mkdir sma-query && cd sma-query/
+    curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/Dockerfile
+    curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/start.sh
+    curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/sma.py
+    docker build --tag sma-query .
+```
 
-~/sma-query$ curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/start.sh
-
-~/sma-query$ curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/sma.py
+## Start Docker Container
+```
+    docker run -d --name sma-query --restart unless-stopped -e influx_ip=192.168.1.3 -e influx_port="8086" -e influx_user="user" -e influx_pw="pw" -e sma_ip=192.168.1.2 -e sma_pw="pw" -e interval=15 sma-query
+```
