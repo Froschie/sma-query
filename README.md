@@ -83,4 +83,4 @@ services:
 ```
 
 
-PS: sorry for some mix of German and English names. That happened during translation and I was simply too lazy to adapt my already present InflusDB data.
+*Note: sorry for some mix of German and English names. That happened during translation and I was simply too lazy to adapt my already present InflusDB data.*
