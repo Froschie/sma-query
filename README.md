@@ -27,7 +27,9 @@ Following data will be queried (but can be extended easily):
 * Current AC Power Acquisition in W of Phase 1-3
 * Current AC Power Consumption in W of Phase 1-3 (calculated)
 
-The script can be run directly using Python3 or placed into a Docker container. 
+The actually available values from the SMA Inverter can be queried by script described here: [SMA Translate Script](https://github.com/Froschie/sma-translate)
+
+The script can be run directly using Python3 or in a Docker container. 
 
 The wrapper script start.sh is needed to correctly perform logout from the SMA Inverter as without it the Sessions will remain forever blocking all of only 4 possible connections.
 
