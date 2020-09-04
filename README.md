@@ -65,24 +65,13 @@ docker run -d --name sma-query --restart unless-stopped -e influx_ip=192.168.1.3
 ```
 
 
-## Start a Docker Container via Docker-Compose File
-```yaml
-version: '3'
-
-services:
-  sma-query:
-    image: sma-query:latest
-    container_name: sma-query
-    environment:
-      - influx_ip=192.168.1.3
-      - influx_por=8086
-      - influx_user=user
-      - influx_pw=pw
-      - sma_ip=192.168.1.2
-      - sma_pw=pw
-      - interval=15
-    restart: unless-stopped
+## Start Docker Container via Docker-Compose File
+```bash
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/docker-compose.yaml
+vi docker-compose.yaml
+docker-compose up -d
 ```
+*Note: please adapt the parameters in <> brackets, use external folder to save the database and use matching values in the WeMos configuration! Don´t override your existing docker compose file!*
 
 
 *Note: sorry for some mix of German and English names. That happened during translation and I was simply too lazy to adapt my already present InflusDB data.*
