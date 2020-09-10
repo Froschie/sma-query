@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y procps htop dos2unix
 # Define Environment Variables needed for Script
 ENV sma_ip="192.168.1.2" sma_pw="pw" influx_ip="192.168.1.3" influx_port="8086" influx_user="user" influx_pw="pw" influx_db="SMA" interval="30"
 
-# Set correct Timezon
+# Set correct Timezone
 RUN ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
 # Copy Scriptis to Container
