@@ -246,21 +246,24 @@ try:
                 points = client.query('SELECT last(solar_total) FROM totals').get_points()
                 for point in points:
                     solar_values_last['solar_total'] = point['last']
-                if solar_values['solar_total'] < solar_values_last['solar_total']:
-                    solar_values['solar_total'] = solar_values_last['solar_total']
-                    solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
+                if 'solar_total' in solar_values_last:
+                    if solar_values['solar_total'] < solar_values_last['solar_total']:
+                        solar_values['solar_total'] = solar_values_last['solar_total']
+                        solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
                 points = client.query('SELECT last(bezug_total) FROM totals').get_points()
                 for point in points:
                     solar_values_last['bezug_total'] = point['last']
-                if solar_values['bezug_total'] < solar_values_last['bezug_total']:
-                    solar_values['bezug_total'] = solar_values_last['bezug_total']
-                    solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
+                if 'bezug_total' in solar_values_last:
+                    if solar_values['bezug_total'] < solar_values_last['bezug_total']:
+                        solar_values['bezug_total'] = solar_values_last['bezug_total']
+                        solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
                 points = client.query('SELECT last(einspeisung_total) FROM totals').get_points()
                 for point in points:
                     solar_values_last['einspeisung_total'] = point['last']
-                if solar_values['einspeisung_total'] < solar_values_last['einspeisung_total']:
-                    solar_values['einspeisung_total'] = solar_values_last['einspeisung_total']
-                    solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
+                if 'einspeisung_total' in solar_values_last:
+                    if solar_values['einspeisung_total'] < solar_values_last['einspeisung_total']:
+                        solar_values['einspeisung_total'] = solar_values_last['einspeisung_total']
+                        solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
                 # Generating the JSON for writing the Influx DB data
                 json_body = []
                 for group in measurement_groups:
