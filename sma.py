@@ -73,6 +73,14 @@ args=parser.parse_args()
 ip = args.sma_ip
 pw = args.sma_pw
 
+# definition of continous queries for faster statistics
+continuous_queries = {
+    'actuals_5min': 'CREATE CONTINUOUS QUERY actuals_5min ON ' + args.influx_db + ' BEGIN SELECT mean(solar_act) AS solar_5min, mean(consumption_act) AS consumption_5min, mean(bezug_act) AS bezug_5min, mean(einspeisung_act) AS einspeisung_5min INTO ' + args.influx_db + '.autogen.actuals_5min FROM ' + args.influx_db + '.autogen.actuals GROUP BY time(5m) END',
+    'totals_daily': 'CREATE CONTINUOUS QUERY totals_daily ON ' + args.influx_db + ' RESAMPLE EVERY 1m BEGIN SELECT spread(solar_total) AS solar_daily, spread(bezug_total) AS bezug_daily, spread(consumption_total) AS consumption_daily, spread(einspeisung_total) AS einspeisung_daily INTO ' + args.influx_db + '.autogen.totals_daily FROM ' + args.influx_db + '.autogen.totals GROUP BY time(1d) TZ(\'Europe/Berlin\') END',
+    'solar_max': 'CREATE CONTINUOUS QUERY solar_max ON ' + args.influx_db + ' RESAMPLE EVERY 5m BEGIN SELECT max(solar_5min) AS solar_max INTO ' + args.influx_db + '.autogen.totals_daily FROM ' + args.influx_db + '.autogen.actuals_5min GROUP BY time(1d) TZ(\'Europe/Berlin\') END',
+    'consumption_min': 'CREATE CONTINUOUS QUERY consumption_min ON ' + args.influx_db + ' RESAMPLE EVERY 5m BEGIN SELECT min(consumption_5min) AS consumption_min INTO ' + args.influx_db + '.autogen.totals_daily FROM ' + args.influx_db + '.autogen.actuals_5min GROUP BY time(1d) TZ(\'Europe/Berlin\') END'
+}
+
 # Catch Stopping the Docker Container
 def handler_stop_signals(signum, frame):
     global sid
@@ -235,10 +243,29 @@ try:
         try:
             client = InfluxDBClient(host=args.influx_ip, port=args.influx_port, username=args.influx_user, password=args.influx_pw)
             #print(client.get_list_database())
-            if not {"name": args.influx_db} in client.get_list_database():
+            if not {'name': args.influx_db} in client.get_list_database():
                 client.create_database(args.influx_db)
                 print(datetime.now(), "InfluxDB (" + args.influx_db + ") created.")
             client.switch_database(args.influx_db)
+            # check for correct continous query configuration
+            queries = client.get_list_continuous_queries()
+            for db in queries:
+                if list(db.keys())[0] == args.influx_db:
+                    for query in db[args.influx_db]:
+                        if query['name'] in continuous_queries:
+                            if query['query'] == continuous_queries[query['name']]:
+                                continuous_queries.pop(query['name'])
+                            else:
+                                client.drop_continuous_query(query['name'], database=args.influx_db)
+                                print(datetime.now(), "Incorrect Continuous Query dropped:", query['name'])
+            for query in continuous_queries:
+                influx_query = client.query(continuous_queries[query])
+                print(datetime.now(), "Added Continuous Query:", query, "Result: ", influx_query)
+                sel_start = continuous_queries[query].find("SELECT")
+                sel_end = continuous_queries[query].find("END")
+                sel_query = continuous_queries[query][sel_start:sel_end]
+                influx_query = client.query(sel_query)
+                print(datetime.now(), "Filled Statistical Tables for:", query, "Result: ", influx_query)
 
             # Write Solar data to InfluxDB 
             try:
