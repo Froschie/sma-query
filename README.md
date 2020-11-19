@@ -48,7 +48,7 @@ Example Output:
 ```
 
 
-## Create a Docker Container
+## Create Docker Container
 
 ```bash
 mkdir sma-query
@@ -59,7 +59,7 @@ curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/sma.py
 docker build --tag sma-query .
 ```
 
-## Start a Docker Container via CMD Line
+## Start Docker Container via CMD Line
 ```bash
 docker run -d --name sma-query --restart unless-stopped -e influx_ip=192.168.1.3 -e influx_port=8086 -e influx_user=user -e influx_pw=pw -e sma_ip=192.168.1.2 -e sma_pw=pw -e interval=15 sma-query
 ```

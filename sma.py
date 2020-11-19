@@ -23,7 +23,7 @@ measurement_list['solar_total'] = {'key': "6400_0046C300", 'group': "totals", 't
 measurement_list['einspeisung_total'] = {'key': "6400_00462400", 'group': "totals", 'type': int, 'val': 0, 'name': "Total Supply Power in Wh"}
 measurement_list['bezug_total'] = {'key': "6400_00462500", 'group': "totals", 'type': int, 'val': 0, 'name': "Total Input Power in Wh"}
 measurement_list['consumption_total'] = {'key': None, 'group': "totals", 'type': int, 'val': 0, 'name': "Total Consumption Power in Wh"}
-# Optional
+# Optional, following measurements can be activated/deactivated or custom ones added:
 measurement_list['power_a'] = {'key': "6380_40251E00", 'group': "dc", 'type': int, 'val': 0, 'name': "Current DC Power in W of String A"}
 #measurement_list['power_b'] = {'key': "6380_40251E00", 'group': "dc", 'type': int, 'val': 1, 'name': "Current DC Power in W of String B"}
 measurement_list['voltage_a'] = {'key': "6380_40451F00", 'group': "dc", 'type': int, 'val': 0, 'name': "Current DC Power in V of String A"}
@@ -61,6 +61,7 @@ parser=argparse.ArgumentParser(
     description='''Script for Query SMA Values.''')
 parser.add_argument('--sma_ip', type=str, required=True, default="", help='IP of the SMA Device.')
 parser.add_argument('--sma_pw', type=str, required=True, default="", help='Password of the SMA Device.')
+parser.add_argument('--sma_mode', type=str, required=False, default="https", choices=["http", "https"], help='HTTP Mode for accessing the WebConnect Interface.')
 parser.add_argument('--influx_ip', type=str, required=True, default="", help='IP of the Influx DB Server.')
 parser.add_argument('--influx_port', type=str, required=True, default="", help='Port of the Influx DB Server.')
 parser.add_argument('--influx_user', type=str, required=True, default="", help='User of the Influx DB Server.')
@@ -72,6 +73,7 @@ args=parser.parse_args()
 
 ip = args.sma_ip
 pw = args.sma_pw
+mode = args.sma_mode
 
 # definition of continous queries for faster statistics
 continuous_queries = {
@@ -85,7 +87,7 @@ continuous_queries = {
 def handler_stop_signals(signum, frame):
     global sid
     global ip
-    if logout(ip, sid):
+    if logout(ip, sid, mode):
         print(datetime.now(), "SMA Device Logout Successfull.")
     else:
         print(datetime.now(), "SMA Device Logout Failed.")
@@ -95,8 +97,8 @@ signal.signal(signal.SIGINT, handler_stop_signals)
 signal.signal(signal.SIGTERM, handler_stop_signals)
 
 # Login Function
-def login(ip, pw):
-    url = "https://" + ip + "/dyn/login.json"
+def login(ip, pw, mode):
+    url = mode + "//" + ip + "/dyn/login.json"
     payload = "{\"right\":\"usr\",\"pass\":\"" + pw + "\"}"
     try:
         response = requests.request("POST", url, data = payload, verify=False)
@@ -110,8 +112,8 @@ def login(ip, pw):
         return None
 
 # Logout Function
-def logout(ip, sid):
-    url = "https://" + ip + "/dyn/logout.json?sid=" + sid
+def logout(ip, sid, mode):
+    url = mode + "://" + ip + "/dyn/logout.json?sid=" + sid
     response = requests.request("POST", url, data = "{}", verify=False)
     if response.status_code == 200:
         return True
@@ -119,10 +121,10 @@ def logout(ip, sid):
         return False
 
 # SMA Value Query
-def query_values(ip):
+def query_values(ip, mode):
     global sid
     global pw
-    url = "https://" + ip + "/dyn/getValues.json?sid=" + sid
+    url = mode + "://" + ip + "/dyn/getValues.json?sid=" + sid
     payload = {"destDev": [], "keys ": [] }
     measurements = []
     for measurement in measurement_list:
@@ -134,11 +136,11 @@ def query_values(ip):
         if "err" in response.json():
             if response.json()['err'] == 401:
                 # Login on SMA Device
-                sid = login(ip, pw)
+                sid = login(ip, pw, mode)
                 while not sid:
                     print(datetime.now(), "Login on SMA Device (" + ip + ") failed.")
                     time.sleep(60)
-                    sid = login(ip, pw)
+                    sid = login(ip, pw, mode)
                 print(datetime.now(), "Login on SMA Device successfull.")
         else:
             for id in response.json()['result']:
@@ -171,22 +173,25 @@ def query_values(ip):
     except:
         values['consumption_total'] = 0
     try:
-        values['consumption_1'] = values['power_1']-values['supply_1']+values['acquisition_1']
+        if "consumption_1" in measurement_list:
+            values['consumption_1'] = values['power_1']-values['supply_1']+values['acquisition_1']
     except:
         values['consumption_1'] = 0
     try:
-        values['consumption_2'] = values['power_2']-values['supply_2']+values['acquisition_2']
+        if "consumption_2" in measurement_list:
+            values['consumption_2'] = values['power_2']-values['supply_2']+values['acquisition_2']
     except:
         values['consumption_2'] = 0
     try:
-        values['consumption_3'] = values['power_3']-values['supply_3']+values['acquisition_3']
+        if "consumption_3" in measurement_list:
+            values['consumption_3'] = values['power_3']-values['supply_3']+values['acquisition_3']
     except:
         values['consumption_3'] = 0
     return values
 
 # Session Check Function
-def session_check(ip):
-    url = "https://" + ip + "/dyn/sessionCheck.json"
+def session_check(ip, mode):
+    url = mode + "://" + ip + "/dyn/sessionCheck.json"
     try:
         response = requests.request("POST", url, data = "{}", verify=False)
     except:
@@ -226,18 +231,18 @@ while now < new_time:
 client = InfluxDBClient(host=args.influx_ip, port=args.influx_port, username=args.influx_user, password=args.influx_pw)
 
 # Login on SMA Device
-sid = login(ip, pw)
+sid = login(ip, pw, mode)
 while not sid:
     print(datetime.now(), "Login on SMA Device (" + ip + ") failed.")
     time.sleep(60)
-    sid = login(ip, pw)
+    sid = login(ip, pw, mode)
 print(datetime.now(), "Login on SMA Device successfull.")
 
 # Execute Query every Xs
 solar_values_last = {}
 try:
     while True:
-        solar_values = query_values(ip)
+        solar_values = query_values(ip, mode)
         print(datetime.now(), "SMA Device Values: ", solar_values)
         # Connect to InfluxDB and save Solar Values
         try:
@@ -330,7 +335,7 @@ try:
 except KeyboardInterrupt:
     print("Script aborted...")
 finally:
-    if logout(ip, sid):
+    if logout(ip, sid, mode):
         print(datetime.now(), "SMA Device Logout Successfull.")
     else:
         print(datetime.now(), "SMA Device Logout Failed.")
