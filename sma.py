@@ -211,11 +211,11 @@ def ceil_time(ct, delta):
     return ct + (datetime.min - ct) % delta
 
 # Check for Free Session on SMA Device
-session_status = session_check(ip)
+session_status = session_check(ip, mode)
 while not session_status[0]:
     print(datetime.now(), session_status[1])
     time.sleep(10)
-    session_status = session_check(ip)
+    session_status = session_check(ip, mode)
 print(datetime.now(), session_status[1])
 
 now = datetime.now()
