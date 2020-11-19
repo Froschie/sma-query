@@ -98,12 +98,12 @@ signal.signal(signal.SIGTERM, handler_stop_signals)
 
 # Login Function
 def login(ip, pw, mode):
-    url = mode + "//" + ip + "/dyn/login.json"
+    url = mode + "://" + ip + "/dyn/login.json"
     payload = "{\"right\":\"usr\",\"pass\":\"" + pw + "\"}"
     try:
         response = requests.request("POST", url, data = payload, verify=False)
-    #print(response.json())
-    #print(response.status_code)
+        #print(response.json())
+        #print(response.status_code)
         if response.status_code == 200:
             if "result" in response.json():
                 return response.json()['result']['sid']
