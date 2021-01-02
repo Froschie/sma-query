@@ -75,3 +75,10 @@ docker-compose up -d
 
 
 *Note: sorry for some mix of German and English names. That happened during translation and I was simply too lazy to adapt my already present InflusDB data.*
+
+
+## Grafana Dashboard
+
+The <u>_*SMA_Dashboard.json*_</u> file provides a simple overview about todays and  long term (30 / 365) solar production and power consumption.  
+Import to your existing Grafana System and select the Influx DB which has been used to store the data. If not done, create the Datasource.  
+<img src="https://github.com/Froschie/sma-query/raw/master/SMA_Dashboard.png" width="913" height="1163" alt="Grafana Dashboard">
