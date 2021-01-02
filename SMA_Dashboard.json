@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 1,
   "id": 216,
-  "iteration": 1609589563331,
+  "iteration": 1609603593817,
   "links": [],
   "panels": [
     {
@@ -536,7 +536,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$DB_SMA",
+      "datasource": "-- Mixed --",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -579,12 +579,23 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:4153",
           "alias": "Solar",
           "color": "#FADE2A"
         },
         {
+          "$$hashKey": "object:4154",
           "alias": "Einspeisung",
           "color": "#73BF69"
+        },
+        {
+          "$$hashKey": "object:4207",
+          "alias": "Sun altitude",
+          "dashLength": 5,
+          "dashes": true,
+          "fill": 0,
+          "spaceLength": 5,
+          "yaxis": 2
         }
       ],
       "spaceLength": 10,
@@ -593,7 +604,9 @@
       "targets": [
         {
           "alias": "Solar",
+          "datasource": "$DB_SMA",
           "groupBy": [],
+          "hide": false,
           "measurement": "actuals",
           "orderByTime": "ASC",
           "policy": "default",
@@ -613,6 +626,7 @@
         },
         {
           "alias": "Einspeisung",
+          "datasource": "$DB_SMA",
           "groupBy": [],
           "measurement": "actuals",
           "orderByTime": "ASC",
@@ -630,20 +644,14 @@
             ]
           ],
           "tags": []
-        }
-      ],
-      "thresholds": [
+        },
         {
-          "colorMode": "warning",
-          "fill": false,
-          "fillColor": "rgba(50, 116, 217, 0.2)",
-          "line": true,
-          "lineColor": "rgba(31, 96, 196, 0.6)",
-          "op": "gt",
-          "value": 3465,
-          "yaxis": "left"
+          "datasource": "Sun and Moon",
+          "refId": "C",
+          "target": "sun_altitude"
         }
       ],
+      "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
@@ -663,6 +671,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:4167",
           "decimals": 2,
           "format": "watt",
           "label": "",
@@ -672,11 +681,12 @@
           "show": true
         },
         {
-          "format": "short",
-          "label": null,
+          "$$hashKey": "object:4168",
+          "format": "degree",
+          "label": "",
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         }
       ],
@@ -1402,5 +1412,5 @@
   "timezone": "",
   "title": "SMA Dashboard",
   "uid": "IFoDHMZgk",
-  "version": 6
+  "version": 8
 }

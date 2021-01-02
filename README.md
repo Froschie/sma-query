@@ -82,3 +82,13 @@ docker-compose up -d
 The <u>_*SMA_Dashboard.json*_</u> file provides a simple overview about todays and  long term (30 / 365) solar production and power consumption.  
 Import to your existing Grafana System and select the Influx DB which has been used to store the data. If not done, create the Datasource.  
 <img src="https://github.com/Froschie/sma-query/raw/master/SMA_Dashboard.png" width="913" height="1163" alt="Grafana Dashboard">
+
+*Note: the Dashboard used the [Sun and Moon Plugin](https://grafana.com/grafana/plugins/fetzerch-sunandmoon-datasource).  
+Please install and configure it!*  
+<img src="https://github.com/Froschie/sma-query/raw/master/sunandmoon_config.png" width="401" height="297" alt="Sun and Moon Plugin Config">
+
+When using Docker Compose for Grafana, the plugin can be added with the environment variable *GF_INSTALL_PLUGINS*:
+```yaml
+environment:
+      - GF_INSTALL_PLUGINS=fetzerch-sunandmoon-datasource
+```

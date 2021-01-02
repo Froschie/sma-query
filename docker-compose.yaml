@@ -14,9 +14,9 @@ services:
       - sma_pw=<pw>
       - sma_mode=https
       - interval=15
-      logging:
-        driver: "json-file"
-        options:
-          max-size: "500k"
-          max-file: "5"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5M"
+        max-file: "10"
     restart: unless-stopped
