@@ -14,6 +14,8 @@ services:
       - sma_pw=<pw>
       - sma_mode=https
       - interval=15
+      - write=1
+      - TZ=Europe/Berlin
     logging:
       driver: "json-file"
       options:
