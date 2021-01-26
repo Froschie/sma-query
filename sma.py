@@ -9,53 +9,7 @@ from influxdb import InfluxDBClient
 import argparse
 import sys
 import signal
-
-# Definition of SMA Measurements
-# Mandatory
-measurement_list = {}
-# einspeisung = supply
-measurement_list['sma_sn'] = {'key': "6800_00A21E00", 'group': None, 'type': str, 'val': 0, 'name': "Serial Number of Inverter"}
-measurement_list['solar_act'] = {'key': "6100_40263F00", 'group': "actuals", 'type': int, 'val': 0, 'name': "Current Solar Power in W"}
-measurement_list['einspeisung_act'] = {'key': "6100_40463600", 'group': "actuals", 'type': int, 'val': 0, 'name': "Current Supply Power in W "}
-measurement_list['bezug_act'] = {'key': "6100_40463700", 'group': "actuals", 'type': int, 'val': 0, 'name': "Current Input Power in W"}
-measurement_list['consumption_act'] = {'key': None, 'group': "actuals", 'type': int, 'val': 0, 'name': "Current Consumption Power in W"}
-measurement_list['solar_total'] = {'key': "6400_0046C300", 'group': "totals", 'type': int, 'val': 0, 'name': "Total Solar Power in Wh"}
-measurement_list['einspeisung_total'] = {'key': "6400_00462400", 'group': "totals", 'type': int, 'val': 0, 'name': "Total Supply Power in Wh"}
-measurement_list['bezug_total'] = {'key': "6400_00462500", 'group': "totals", 'type': int, 'val': 0, 'name': "Total Input Power in Wh"}
-measurement_list['consumption_total'] = {'key': None, 'group': "totals", 'type': int, 'val': 0, 'name': "Total Consumption Power in Wh"}
-# Optional, following measurements can be activated/deactivated or custom ones added:
-measurement_list['power_a'] = {'key': "6380_40251E00", 'group': "dc", 'type': int, 'val': 0, 'name': "Current DC Power in W of String A"}
-#measurement_list['power_b'] = {'key': "6380_40251E00", 'group': "dc", 'type': int, 'val': 1, 'name': "Current DC Power in W of String B"}
-measurement_list['voltage_a'] = {'key': "6380_40451F00", 'group': "dc", 'type': int, 'val': 0, 'name': "Current DC Power in V of String A"}
-#measurement_list['voltage_b'] = {'key': "6380_40451F00", 'group': "dc", 'type': int, 'val': 1, 'name': "Current DC Power in V of String A"}
-measurement_list['current_a'] = {'key': "6380_40452100", 'group': "dc", 'type': int, 'val': 0, 'name': "Current DC Power in A of String A"}
-#measurement_list['current_b'] = {'key': "6380_40452100", 'group': "dc", 'type': int, 'val': 1, 'name': "Current DC Power in A of String A"}
-measurement_list['power'] = {'key': "6100_40263F00", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Power in W"}
-measurement_list['freq'] = {'key': "6100_00465700", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Frequency in Hz"}
-measurement_list['current_1'] = {'key': "6100_40465300", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Power in A of Phase 1"}
-measurement_list['current_2'] = {'key': "6100_40465400", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Power in A of Phase 2"}
-measurement_list['current_3'] = {'key': "6100_40465500", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Power in A of Phase 3"}
-measurement_list['voltage_1'] = {'key': "6100_00464800", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Power in V of Phase 1"}
-measurement_list['voltage_2'] = {'key': "6100_00464900", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Power in V of Phase 2"}
-measurement_list['voltage_3'] = {'key': "6100_00464A00", 'group': "ac", 'type': int, 'val': 0, 'name': "Current AC Power in V of Phase 3"}
-measurement_list['power_1'] = {'key': "6100_40464000", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Generation in W of Phase 1"}
-measurement_list['power_2'] = {'key': "6100_40464100", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Generation in W of Phase 2"}
-measurement_list['power_3'] = {'key': "6100_40464200", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Generation in W of Phase 3"}
-measurement_list['supply_1'] = {'key': "6100_0046E800", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Supply in W of Phase 1"}
-measurement_list['supply_2'] = {'key': "6100_0046E900", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Supply in W of Phase 2"}
-measurement_list['supply_3'] = {'key': "6100_0046EA00", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Supply in W of Phase 3"}
-measurement_list['acquisition_1'] = {'key': "6100_0046EB00", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Acquisition in W of Phase 1"}
-measurement_list['acquisition_2'] = {'key': "6100_0046EC00", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Acquisition in W of Phase 2"}
-measurement_list['acquisition_3'] = {'key': "6100_0046ED00", 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Acquisition in W of Phase 3"}
-measurement_list['consumption_1'] = {'key': None, 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Consumption in W of Phase 1"}
-measurement_list['consumption_2'] = {'key': None, 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Consumption in W of Phase 2"}
-measurement_list['consumption_3'] = {'key': None, 'group': "phases", 'type': int, 'val': 0, 'name': "Current AC Power Consumption in W of Phase 3"}
-
-measurement_groups = {}
-for measurement in measurement_list:
-    if measurement_list[measurement]['group'] is not None:
-        measurement_groups[measurement_list[measurement]['group']] = {}
-        measurement_groups[measurement_list[measurement]['group']]['measurement'] = measurement_list[measurement]['group']
+import os
 
 parser=argparse.ArgumentParser(
     description='''Script for Query SMA Values.''')
@@ -75,14 +29,44 @@ ip = args.sma_ip
 pw = args.sma_pw
 mode = args.sma_mode
 
+# Load Measurement Configuration
+# Definition of SMA Measurements
+try:
+    for filename in ["config_measurements.json", "/config_measurements.json"]:
+        if os.path.isfile(filename):
+            with open(filename) as json_data_file:
+                measurements = json.load(json_data_file)
+                break
+    measurement_list = {}
+    for measurement in measurements:
+        if measurements[measurement]['active'] == True:
+            measurement_list[measurement] = measurements[measurement]
+except Exception as e:
+    print(e)
+    print(datetime.now(), "config_measurements.json file could not be opened or is not valid JSON file!")
+    time.sleep(60)    
+    sys.exit(1)
+
+# Load Constant Queries Configuration
 # definition of continous queries for faster statistics
-continuous_queries = {
-    'actuals_5min': 'CREATE CONTINUOUS QUERY actuals_5min ON ' + args.influx_db + ' BEGIN SELECT mean(solar_act) AS solar_5min, mean(consumption_act) AS consumption_5min, mean(bezug_act) AS bezug_5min, mean(einspeisung_act) AS einspeisung_5min INTO ' + args.influx_db + '.autogen.actuals_5min FROM ' + args.influx_db + '.autogen.actuals GROUP BY time(5m) END',
-    'actuals_60min': 'CREATE CONTINUOUS QUERY actuals_60min ON ' + args.influx_db + ' BEGIN SELECT mean(solar_act) AS solar_60min, mean(consumption_act) AS consumption_60min, mean(bezug_act) AS bezug_60min, mean(einspeisung_act) AS einspeisung_60min INTO ' + args.influx_db + '.autogen.actuals_60min FROM ' + args.influx_db + '.autogen.actuals GROUP BY time(1h) END',
-    'totals_daily': 'CREATE CONTINUOUS QUERY totals_daily ON ' + args.influx_db + ' RESAMPLE EVERY 1m BEGIN SELECT spread(solar_total) AS solar_daily, spread(bezug_total) AS bezug_daily, spread(consumption_total) AS consumption_daily, spread(einspeisung_total) AS einspeisung_daily INTO ' + args.influx_db + '.autogen.totals_daily FROM ' + args.influx_db + '.autogen.totals GROUP BY time(1d) TZ(\'Europe/Berlin\') END',
-    'solar_max': 'CREATE CONTINUOUS QUERY solar_max ON ' + args.influx_db + ' RESAMPLE EVERY 5m BEGIN SELECT max(solar_5min) AS solar_max INTO ' + args.influx_db + '.autogen.totals_daily FROM ' + args.influx_db + '.autogen.actuals_5min GROUP BY time(1d) TZ(\'Europe/Berlin\') END',
-    'consumption_min': 'CREATE CONTINUOUS QUERY consumption_min ON ' + args.influx_db + ' RESAMPLE EVERY 5m BEGIN SELECT min(consumption_5min) AS consumption_min INTO ' + args.influx_db + '.autogen.totals_daily FROM ' + args.influx_db + '.autogen.actuals_5min GROUP BY time(1d) TZ(\'Europe/Berlin\') END'
-}
+try:
+    for filename in ["config_queries.json", "/config_queries.json"]:
+        if os.path.isfile(filename):
+            with open(filename) as json_data_file:
+                continuous_queries = json.load(json_data_file)
+                break
+    for query in continuous_queries:
+        continuous_queries[query] = continuous_queries[query].replace("+influx_db+", args.influx_db)
+except:
+    print(datetime.now(), "config_queries.json file could not be opened or is not valid JSON file!")
+    time.sleep(60)    
+    sys.exit(1)
+
+measurement_groups = {}
+for measurement in measurement_list:
+    if measurement_list[measurement]['group'] is not None:
+        measurement_groups[measurement_list[measurement]['group']] = {}
+        measurement_groups[measurement_list[measurement]['group']]['measurement'] = measurement_list[measurement]['group']
 
 # Catch Stopping the Docker Container
 def handler_stop_signals(signum, frame):
@@ -155,7 +139,7 @@ def query_values(ip, mode):
             key = measurement_list[measurement]['key']
             typ = measurement_list[measurement]['type']
             val = measurement_list[measurement]['val']
-            if typ == int:
+            if typ == "int":
                 try:
                     values[measurement] = int(sma_data[key]['1'][val]['val'])
                 except:

@@ -1,0 +1,317 @@
+{
+    "sma_sn": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6800_00A21E00",
+        "group": null,
+        "type": "str",
+        "val": 0,
+        "name": "Serial Number of Inverter"
+    },
+    "solar_act": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6100_40263F00",
+        "group": "actuals",
+        "type": "int",
+        "val": 0,
+        "name": "Current Solar Power in W"
+    },
+    "einspeisung_act": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6100_40463600",
+        "group": "actuals",
+        "type": "int",
+        "val": 0,
+        "name": "Current Supply Power in W "
+    },
+    "bezug_act": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6100_40463700",
+        "group": "actuals",
+        "type": "int",
+        "val": 0,
+        "name": "Current Input Power in W"
+    },
+    "consumption_act": {
+        "required": "mandatory",
+        "active": true,
+        "key": null,
+        "group": "actuals",
+        "type": "int",
+        "val": 0,
+        "name": "Current Consumption Power in W"
+    },
+    "solar_total": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6400_0046C300",
+        "group": "totals",
+        "type": "int",
+        "val": 0,
+        "name": "Total Solar Power in Wh"
+    },
+    "einspeisung_total": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6400_00462400",
+        "group": "totals",
+        "type": "int",
+        "val": 0,
+        "name": "Total Supply Power in Wh"
+    },
+    "bezug_total": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6400_00462500",
+        "group": "totals",
+        "type": "int",
+        "val": 0,
+        "name": "Total Input Power in Wh"
+    },
+    "consumption_total": {
+        "required": "mandatory",
+        "active": true,
+        "key": null,
+        "group": "totals",
+        "type": "int",
+        "val": 0,
+        "name": "Total Consumption Power in Wh"
+    },
+    "power_a": {
+        "required": "optional",
+        "active": true,
+        "key": "6380_40251E00",
+        "group": "dc",
+        "type": "int",
+        "val": 0,
+        "name": "Current DC Power in W of string A"
+    },
+    "power_b": {
+        "required": "optional",
+        "active": false,
+        "key": "6380_40251E00",
+        "group": "dc",
+        "type": "int",
+        "val": 1,
+        "name": "Current DC Power in W of string B"
+    },
+    "voltage_a": {
+        "required": "optional",
+        "active": true,
+        "key": "6380_40451F00",
+        "group": "dc",
+        "type": "int",
+        "val": 0,
+        "name": "Current DC Power in V of string A"
+    },
+    "voltage_b": {
+        "required": "optional",
+        "active": false,
+        "key": "6380_40451F00",
+        "group": "dc",
+        "type": "int",
+        "val": 1,
+        "name": "Current DC Power in V of string A"
+    },
+    "current_a": {
+        "required": "optional",
+        "active": true,
+        "key": "6380_40452100",
+        "group": "dc",
+        "type": "int",
+        "val": 0,
+        "name": "Current DC Power in A of string A"
+    },
+    "current_b": {
+        "required": "optional",
+        "active": false,
+        "key": "6380_40452100",
+        "group": "dc",
+        "type": "int",
+        "val": 1,
+        "name": "Current DC Power in A of string A"
+    },
+    "power": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_40263F00",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power in W"
+    },
+    "freq": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_00465700",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Frequency in Hz"
+    },
+    "current_1": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_40465300",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power in A of Phase 1"
+    },
+    "current_2": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_40465400",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power in A of Phase 2"
+    },
+    "current_3": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_40465500",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power in A of Phase 3"
+    },
+    "voltage_1": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_00464800",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power in V of Phase 1"
+    },
+    "voltage_2": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_00464900",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power in V of Phase 2"
+    },
+    "voltage_3": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_00464A00",
+        "group": "ac",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power in V of Phase 3"
+    },
+    "power_1": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_40464000",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Generation in W of Phase 1"
+    },
+    "power_2": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_40464100",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Generation in W of Phase 2"
+    },
+    "power_3": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_40464200",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Generation in W of Phase 3"
+    },
+    "supply_1": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_0046E800",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Supply in W of Phase 1"
+    },
+    "supply_2": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_0046E900",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Supply in W of Phase 2"
+    },
+    "supply_3": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_0046EA00",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Supply in W of Phase 3"
+    },
+    "acquisition_1": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_0046EB00",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Acquisition in W of Phase 1"
+    },
+    "acquisition_2": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_0046EC00",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Acquisition in W of Phase 2"
+    },
+    "acquisition_3": {
+        "required": "optional",
+        "active": true,
+        "key": "6100_0046ED00",
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Acquisition in W of Phase 3"
+    },
+    "consumption_1": {
+        "required": "optional",
+        "active": true,
+        "key": null,
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Consumption in W of Phase 1"
+    },
+    "consumption_2": {
+        "required": "optional",
+        "active": true,
+        "key": null,
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Consumption in W of Phase 2"
+    },
+    "consumption_3": {
+        "required": "optional",
+        "active": true,
+        "key": null,
+        "group": "phases",
+        "type": "int",
+        "val": 0,
+        "name": "Current AC Power Consumption in W of Phase 3"
+    }
+}

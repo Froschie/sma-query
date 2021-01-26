@@ -1,25 +1,23 @@
-FROM python:slim
+# first build Alpine Base Image with Init
+FROM alpine:3.12
+ARG TARGETPLATFORM
+RUN apk add --no-cache bash curl tzdata
+COPY ./s6download.sh /s6download.sh
+RUN chmod +x /s6download.sh && bash /s6download.sh && tar xfz /tmp/s6overlay.tar.gz -C / && rm /tmp/s6overlay.tar.gz && rm /s6download.sh
+ENTRYPOINT ["/init"]
 
 # Image Description
-LABEL version="1.0" description="Script to Query data from SMA Device and store it to InfluxDB"
+LABEL version="2.0" description="Script to Query data from SMA Device and store it to InfluxDB"
 
-# Install required Python Modules
-RUN pip install influxdb requests
-
-# Install pgrep for stopping the Python Script in case needed
-RUN apt-get update && apt-get install -y procps htop dos2unix
+# Install Python and Python Modules
+RUN apk add --no-cache python3 py-pip && pip install influxdb && apk del py-pip && apk add py3-requests py3-msgpack
 
 # Define Environment Variables needed for Script
 ENV sma_ip="192.168.1.2" sma_pw="pw" sma_mode="https" influx_ip="192.168.1.3" influx_port="8086" influx_user="user" influx_pw="pw" influx_db="SMA" interval="30"
 
-# Set correct Timezone
-RUN ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+# Startup Script to Container
+RUN mkdir -p /etc/services.d/pv-query
+COPY ./run.sh /etc/services.d/pv-query/run
 
 # Copy Scriptis to Container
-ADD ./sma.py /sma.py
-ADD ./start.sh /start.sh
-RUN chmod +x /start.sh && dos2unix /start.sh
-RUN mkdir /logs
-
-# Default Command for starting the Container
-CMD ["/start.sh"]
+ADD ./sma.py ./config_measurements.json ./config_queries.json /

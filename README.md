@@ -1,4 +1,4 @@
-# sma-query
+# sma-query ![Docker Hub Image](https://github.com/Froschie/sma-query/workflows/Docker%20Hub%20Image/badge.svg)
 Python Script to query SMA Inverter Data via WebConnect and save the data to InfluxDB.
 
 The script has been tested using a SMA Inverter SUNNY TRIPOWER 5.0 and SMA Enegry Meter.
