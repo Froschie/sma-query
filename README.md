@@ -33,6 +33,49 @@ The script can be run directly using Python3 or in a Docker container.
 
 The wrapper script start.sh is needed to correctly perform logout from the SMA Inverter as without it the Sessions will remain forever blocking all of only 4 possible connections.
 
+## Start and Configure Docker Container  
+
+Pull latest Image:  
+`docker pull froschie/sma-query:latest`  
+
+Download Configuration files and change if configuration should be changed:  
+```bash
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/config_measurements.json
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/config_queries.json
+```
+
+Start Container wirthout writing to DB:  
+```bash
+docker run -it --rm \
+ -e influx_ip=192.168.1.3 \
+ -e influx_port=8086 \
+ -e influx_db=SMA \
+ -e influx_user=user \
+ -e influx_pw=pw \
+ -e sma_ip=192.168.1.4 \
+ -e sma_pw=smapw \
+ -e sma_mode=https \
+ -e interval=15 \
+ -e write=0 \
+ -e TZ=Europe/Berlin \
+ -v $(pwd)/config_queries.json:/config_queries.json \
+ -v $(pwd)/config_measurements.json:/config_measurements.json \
+ froschie/sma-query
+```
+*Note: please adapt the parameters as needed and replace "-it --rm" with "-d" to run it permanently or use docker-compose!*  
+
+
+## Start Docker Container via Docker-Compose File
+```bash
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/docker-compose.yaml
+vi docker-compose.yaml
+docker-compose up -d
+```
+*Note: please adapt the parameters in <> brackets, use external folder to save the database and use matching values in the WeMos configuration! Don´t override your existing docker compose file!*
+
+
+*Note: sorry for some mix of German and English names. That happened during translation and I was simply too lazy to adapt my already present InflusDB data.*
+
 
 ## Start Script without Container
 ```bash
@@ -56,25 +99,16 @@ cd sma-query/
 curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/Dockerfile
 curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/start.sh
 curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/sma.py
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/config_measurements.json
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/config_queries.json
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/s6download.sh
+curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/run.sh
 docker build --tag sma-query .
 ```
 
-## Start Docker Container via CMD Line
 ```bash
 docker run -d --name sma-query --restart unless-stopped -e influx_ip=192.168.1.3 -e influx_port=8086 -e influx_user=user -e influx_pw=pw -e sma_ip=192.168.1.2 -e sma_pw=pw -e interval=15 sma-query
 ```
-
-
-## Start Docker Container via Docker-Compose File
-```bash
-curl -O https://raw.githubusercontent.com/Froschie/sma-query/master/docker-compose.yaml
-vi docker-compose.yaml
-docker-compose up -d
-```
-*Note: please adapt the parameters in <> brackets, use external folder to save the database and use matching values in the WeMos configuration! Don´t override your existing docker compose file!*
-
-
-*Note: sorry for some mix of German and English names. That happened during translation and I was simply too lazy to adapt my already present InflusDB data.*
 
 
 ## Grafana Dashboard

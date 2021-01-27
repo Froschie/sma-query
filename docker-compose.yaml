@@ -4,6 +4,9 @@ services:
   sma-query:
     image: sma-query:latest
     container_name: sma-query
+    volumes:
+      - /<docker>/config_measurements.json:/config_measurements.json
+      - /<docker>/config_queries.json:/config_queries.json
     environment:
       - influx_ip=<192.168.1.3>
       - influx_port=<8086>
