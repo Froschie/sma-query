@@ -8,6 +8,15 @@
         "val": 0,
         "name": "Serial Number of Inverter"
     },
+    "sma_type": {
+        "required": "mandatory",
+        "active": true,
+        "key": "6800_08822000",
+        "group": null,
+        "type": "tag",
+        "val": 0,
+        "name": "Device type"
+    },
     "solar_act": {
         "required": "mandatory",
         "active": true,
@@ -40,7 +49,10 @@
         "active": true,
         "key": null,
         "group": "actuals",
-        "type": "int",
+        "type": "calc",
+        "field1": "solar_act",
+        "field2": "einspeisung_act",
+        "field3": "bezug_act",
         "val": 0,
         "name": "Current Consumption Power in W"
     },
@@ -76,7 +88,10 @@
         "active": true,
         "key": null,
         "group": "totals",
-        "type": "int",
+        "type": "calc",
+        "field1": "solar_total",
+        "field2": "einspeisung_total",
+        "field3": "bezug_total",
         "val": 0,
         "name": "Total Consumption Power in Wh"
     },
@@ -292,7 +307,10 @@
         "active": true,
         "key": null,
         "group": "phases",
-        "type": "int",
+        "type": "calc",
+        "field1": "power_1",
+        "field2": "supply_1",
+        "field3": "acquisition_1",
         "val": 0,
         "name": "Current AC Power Consumption in W of Phase 1"
     },
@@ -301,7 +319,10 @@
         "active": true,
         "key": null,
         "group": "phases",
-        "type": "int",
+        "type": "calc",
+        "field1": "power_2",
+        "field2": "supply_2",
+        "field3": "acquisition_2",
         "val": 0,
         "name": "Current AC Power Consumption in W of Phase 2"
     },
@@ -310,7 +331,10 @@
         "active": true,
         "key": null,
         "group": "phases",
-        "type": "int",
+        "type": "calc",
+        "field1": "power_3",
+        "field2": "supply_3",
+        "field3": "acquisition_3",
         "val": 0,
         "name": "Current AC Power Consumption in W of Phase 3"
     }

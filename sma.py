@@ -74,6 +74,11 @@ for measurement in measurement_list:
         measurement_groups[measurement_list[measurement]['group']] = {}
         measurement_groups[measurement_list[measurement]['group']]['measurement'] = measurement_list[measurement]['group']
 
+# Download of SMA Language File
+url = mode + "://" + ip + "/data/l10n/en-US.json"
+response = requests.request("GET", url, verify=False, timeout=(3, 10))
+descriptions = response.json()
+
 # Catch Stopping the Docker Container
 def handler_stop_signals(signum, frame):
     global sid
@@ -115,6 +120,7 @@ def logout(ip, sid, mode):
 def query_values(ip, mode):
     global sid
     global pw
+    global descriptions
     url = mode + "://" + ip + "/dyn/getValues.json?sid=" + sid
     payload = {"destDev": [], "keys ": [] }
     measurements = []
@@ -149,37 +155,31 @@ def query_values(ip, mode):
             val = measurement_list[measurement]['val']
             if typ == "int":
                 try:
-                    values[measurement] = int(sma_data[key]['1'][val]['val'])
+                    for id in sma_data[key]:
+                        values[measurement] = int(sma_data[key][id][val]['val'])
                 except:
                     values[measurement] = 0
-            else:
+            elif typ == "calc":
+                values[measurement] = 0
+            elif typ == "tag":
                 try:
-                    values[measurement] = str(sma_data[key]['1'][val]['val'])
+                    for id in sma_data[key]:
+                        values[measurement] = descriptions[str(sma_data[key][id][val]['val'][0]['tag'])]
                 except:
                     values[measurement] = str("-")
-    try:
-        values['consumption_act'] = values['solar_act']-values['einspeisung_act']+values['bezug_act']
-    except:
-        values['consumption_act'] = 0
-    try:
-        values['consumption_total'] = values['solar_total']-values['einspeisung_total']+values['bezug_total']
-    except:
-        values['consumption_total'] = 0
-    try:
-        if "consumption_1" in measurement_list:
-            values['consumption_1'] = values['power_1']-values['supply_1']+values['acquisition_1']
-    except:
-        values['consumption_1'] = 0
-    try:
-        if "consumption_2" in measurement_list:
-            values['consumption_2'] = values['power_2']-values['supply_2']+values['acquisition_2']
-    except:
-        values['consumption_2'] = 0
-    try:
-        if "consumption_3" in measurement_list:
-            values['consumption_3'] = values['power_3']-values['supply_3']+values['acquisition_3']
-    except:
-        values['consumption_3'] = 0
+            else:
+                try:
+                    for id in sma_data[key]:
+                        values[measurement] = str(sma_data[key][id][val]['val'])
+                except:
+                    values[measurement] = str("-")
+    for measurement in measurement_list:
+        typ = measurement_list[measurement]['type']
+        if typ == "calc":
+            try:
+                values[measurement] = values[measurement_list[measurement]['field1']]-values[measurement_list[measurement]['field2']]+values[measurement_list[measurement]['field3']]
+            except:
+                pass
     return values
 
 # Session Check Function
@@ -214,7 +214,7 @@ log.info(session_status[1])
 now = datetime.now()
 new_time = ceil_time(now, timedelta(seconds=int(args.interval)))
 
-log.info("Actual Time: " + str(now) + " waiting for: " + str(new_time))  
+log.info("Actual Time: " + str(now) + " waiting for: " + str(new_time))
 
 # Wait for Full Minute / Half Minute
 while now < new_time:
@@ -268,27 +268,28 @@ try:
             # Write Solar data to InfluxDB 
             try:
                 # Workaround for missing / wrong (lower) total values after SMA restart
-                points = client.query('SELECT last(solar_total) FROM totals').get_points()
-                for point in points:
-                    solar_values_last['solar_total'] = point['last']
-                if 'solar_total' in solar_values_last:
-                    if solar_values['solar_total'] < solar_values_last['solar_total']:
-                        solar_values['solar_total'] = solar_values_last['solar_total']
-                        solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
-                points = client.query('SELECT last(bezug_total) FROM totals').get_points()
-                for point in points:
-                    solar_values_last['bezug_total'] = point['last']
-                if 'bezug_total' in solar_values_last:
-                    if solar_values['bezug_total'] < solar_values_last['bezug_total']:
-                        solar_values['bezug_total'] = solar_values_last['bezug_total']
-                        solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
-                points = client.query('SELECT last(einspeisung_total) FROM totals').get_points()
-                for point in points:
-                    solar_values_last['einspeisung_total'] = point['last']
-                if 'einspeisung_total' in solar_values_last:
-                    if solar_values['einspeisung_total'] < solar_values_last['einspeisung_total']:
-                        solar_values['einspeisung_total'] = solar_values_last['einspeisung_total']
-                        solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
+                if "solar_total" in measurement_list:
+                    points = client.query('SELECT last(solar_total) FROM totals').get_points()
+                    for point in points:
+                        solar_values_last['solar_total'] = point['last']
+                    if 'solar_total' in solar_values_last:
+                        if solar_values['solar_total'] < solar_values_last['solar_total']:
+                            solar_values['solar_total'] = solar_values_last['solar_total']
+                            solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
+                    points = client.query('SELECT last(bezug_total) FROM totals').get_points()
+                    for point in points:
+                        solar_values_last['bezug_total'] = point['last']
+                    if 'bezug_total' in solar_values_last:
+                        if solar_values['bezug_total'] < solar_values_last['bezug_total']:
+                            solar_values['bezug_total'] = solar_values_last['bezug_total']
+                            solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
+                    points = client.query('SELECT last(einspeisung_total) FROM totals').get_points()
+                    for point in points:
+                        solar_values_last['einspeisung_total'] = point['last']
+                    if 'einspeisung_total' in solar_values_last:
+                        if solar_values['einspeisung_total'] < solar_values_last['einspeisung_total']:
+                            solar_values['einspeisung_total'] = solar_values_last['einspeisung_total']
+                            solar_values['consumption_total'] = solar_values['solar_total']-solar_values['einspeisung_total']+solar_values['bezug_total']
                 # Generating the JSON for writing the Influx DB data
                 json_body = []
                 for group in measurement_groups:
@@ -296,6 +297,7 @@ try:
                         "measurement": str(group),
                         "tags": {
                             "serial": str(solar_values['sma_sn']),
+                            "device": str(solar_values['sma_type'])
                         },
                         "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
                         "fields": {}
