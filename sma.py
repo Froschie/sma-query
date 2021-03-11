@@ -10,6 +10,7 @@ import argparse
 import sys
 import signal
 import os
+import logging
 
 parser=argparse.ArgumentParser(
     description='''Script for Query SMA Values.''')
@@ -23,11 +24,16 @@ parser.add_argument('--influx_pw', type=str, required=True, default="", help='Pa
 parser.add_argument('--influx_db', type=str, required=True, default="", help='DB name of the Influx DB Server.')
 parser.add_argument('--interval', type=float, required=False, default="30.0", help='Interval in Seconds to query and save the data.')
 parser.add_argument('--write', type=int, required=False, default=1, choices=[0, 1], help='Specify if Data should be written to InfluxDB or not.')
+parser.add_argument('--log', type=str, required=False, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help='Specify Log output.')
 args=parser.parse_args()
 
 ip = args.sma_ip
 pw = args.sma_pw
 mode = args.sma_mode
+
+# Log Output configuration
+logging.basicConfig(level=getattr(logging, args.log), format='%(asctime)s.%(msecs)05d %(levelname)07s:\t%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+log = logging.getLogger(__name__)
 
 # Load Measurement Configuration
 # Definition of SMA Measurements
@@ -42,8 +48,8 @@ try:
         if measurements[measurement]['active'] == True:
             measurement_list[measurement] = measurements[measurement]
 except Exception as e:
-    print(e)
-    print(datetime.now(), "config_measurements.json file could not be opened or is not valid JSON file!")
+    log.error("config_measurements.json file could not be opened or is not valid JSON file!")
+    log.error(e)
     time.sleep(60)    
     sys.exit(1)
 
@@ -58,7 +64,7 @@ try:
     for query in continuous_queries:
         continuous_queries[query] = continuous_queries[query].replace("+influx_db+", args.influx_db)
 except:
-    print(datetime.now(), "config_queries.json file could not be opened or is not valid JSON file!")
+    log.error("config_queries.json file could not be opened or is not valid JSON file!")
     time.sleep(60)    
     sys.exit(1)
 
@@ -73,10 +79,10 @@ def handler_stop_signals(signum, frame):
     global sid
     global ip
     if logout(ip, sid, mode):
-        print(datetime.now(), "SMA Device Logout Successfull.")
+        log.info("SMA Device Logout Successfull.")
     else:
-        print(datetime.now(), "SMA Device Logout Failed.")
-    print(datetime.now(), "Container Stopping...")
+        log.error("SMA Device Logout Failed.")
+    log.warn("Container Stopping...")
     sys.exit(0)
 signal.signal(signal.SIGINT, handler_stop_signals)
 signal.signal(signal.SIGTERM, handler_stop_signals)
@@ -87,8 +93,8 @@ def login(ip, pw, mode):
     payload = "{\"right\":\"usr\",\"pass\":\"" + pw + "\"}"
     try:
         response = requests.request("POST", url, data = payload, verify=False)
-        #print(response.json())
-        #print(response.status_code)
+        log.debug(response.json())
+        log.debug(response.status_code)
         if response.status_code == 200:
             if "result" in response.json():
                 return response.json()['result']['sid']
@@ -118,20 +124,22 @@ def query_values(ip, mode):
     payload = json.dumps({"destDev": [], "keys": measurements})
     try:
         response = requests.request("POST", url, data = payload, verify=False)
+        log.debug(response.json())
+        log.debug(response.status_code)
         if "err" in response.json():
             if response.json()['err'] == 401:
                 # Login on SMA Device
                 sid = login(ip, pw, mode)
                 while not sid:
-                    print(datetime.now(), "Login on SMA Device (" + ip + ") failed.")
+                    log.error("Login on SMA Device (" + ip + ") failed.")
                     time.sleep(60)
                     sid = login(ip, pw, mode)
-                print(datetime.now(), "Login on SMA Device successfull.")
+                log.info("Login on SMA Device successfull.")
         else:
             for id in response.json()['result']:
                 sma_data = response.json()['result'][id]
     except:
-        print(datetime.now(), "Query Failed...")
+        log.error("Query Failed...")
 
     values = {}
     for measurement in measurement_list:
@@ -181,7 +189,7 @@ def session_check(ip, mode):
         response = requests.request("POST", url, data = "{}", verify=False)
     except:
         return (False, "No response from SMA Device (" + ip + ")!")
-    #print(response.json())
+    #log.debug(response.json())
     if response.status_code == 200:
         if "result" in response.json():
             if "cntFreeSess" in response.json()['result']:
@@ -198,15 +206,15 @@ def ceil_time(ct, delta):
 # Check for Free Session on SMA Device
 session_status = session_check(ip, mode)
 while not session_status[0]:
-    print(datetime.now(), session_status[1])
+    log.error(session_status[1])
     time.sleep(10)
     session_status = session_check(ip, mode)
-print(datetime.now(), session_status[1])
+log.info(session_status[1])
 
 now = datetime.now()
 new_time = ceil_time(now, timedelta(seconds=int(args.interval)))
 
-print(now, "Actual Time:", now, "waiting for:", new_time)    
+log.info("Actual Time: " + str(now) + " waiting for: " + str(new_time))  
 
 # Wait for Full Minute / Half Minute
 while now < new_time:
@@ -218,24 +226,24 @@ client = InfluxDBClient(host=args.influx_ip, port=args.influx_port, username=arg
 # Login on SMA Device
 sid = login(ip, pw, mode)
 while not sid:
-    print(datetime.now(), "Login on SMA Device (" + ip + ") failed.")
+    log.error("Login on SMA Device (" + ip + ") failed.")
     time.sleep(60)
     sid = login(ip, pw, mode)
-print(datetime.now(), "Login on SMA Device successfull.")
+log.info("Login on SMA Device successfull.")
 
 # Execute Query every Xs
 solar_values_last = {}
 try:
     while True:
         solar_values = query_values(ip, mode)
-        print(datetime.now(), "SMA Device Values: ", solar_values)
+        log.debug("SMA Device Values: " + str(solar_values))
         # Connect to InfluxDB and save Solar Values
         try:
             client = InfluxDBClient(host=args.influx_ip, port=args.influx_port, username=args.influx_user, password=args.influx_pw)
-            #print(client.get_list_database())
+            #log.debug(client.get_list_database())
             if not {'name': args.influx_db} in client.get_list_database():
                 client.create_database(args.influx_db)
-                print(datetime.now(), "InfluxDB (" + args.influx_db + ") created.")
+                log.info("InfluxDB (" + str(args.influx_db) + ") created.")
             client.switch_database(args.influx_db)
             # check for correct continous query configuration
             queries = client.get_list_continuous_queries()
@@ -247,15 +255,15 @@ try:
                                 continuous_queries.pop(query['name'])
                             else:
                                 client.drop_continuous_query(query['name'], database=args.influx_db)
-                                print(datetime.now(), "Incorrect Continuous Query dropped:", query['name'])
+                                log.info("Incorrect Continuous Query dropped: " + str(query['name']))
             for query in continuous_queries:
                 influx_query = client.query(continuous_queries[query])
-                print(datetime.now(), "Added Continuous Query:", query, "Result: ", influx_query)
+                log.info("Added Continuous Query: " + str(query) + " Result: " + str(influx_query))
                 sel_start = continuous_queries[query].find("SELECT")
                 sel_end = continuous_queries[query].find("END")
                 sel_query = continuous_queries[query][sel_start:sel_end]
                 influx_query = client.query(sel_query)
-                print(datetime.now(), "Filled Statistical Tables for:", query, "Result: ", influx_query)
+                log.info("Filled Statistical Tables for: " + str(query) + " Result: " + str(influx_query))
 
             # Write Solar data to InfluxDB 
             try:
@@ -299,28 +307,29 @@ try:
                     if str(solar_values['sma_sn']) != "unknown":
                         json_body.append(temp_body)
                     else:
-                        print(datetime.now(), "Incorrect Serial Number, skipping data, SN: " + str(solar_values['sma_sn']))
-                #print(datetime.now(), "InfluxDB write data DEBUG:" + str(json_body))
+                        log.error("Incorrect Serial Number, skipping data, SN: " + str(solar_values['sma_sn']))
+                log.debug("InfluxDB write data DEBUG:" + str(json_body))
                 if args.write == 1:
                     influx_result = client.write_points(json_body)
                     if influx_result:
-                        print(datetime.now(), "InfluxDB write data successfull:" + str(json_body))
+                        log.debug("InfluxDB write data successfull:" + str(json_body))
                     else:
-                        print(datetime.now(), "InfluxDB write data FAILED:" + str(json_body))
-                        print(influx_result)
+                        log.error("InfluxDB write data FAILED:" + str(json_body))
+                        log.error(influx_result)
                 #solar_values_last = solar_values
             except Exception as e:
-                print(datetime.now(), "InfluxDB error writing the Solar Values", e)
+                log.error("InfluxDB error writing the Solar Values")
+                log.error(e)
             finally:
                 client.close()
         except Exception as e:
-            print(datetime.now(), "InfluxDB connection failed (%s@%s)." % (args.influx_ip, args.influx_port))
+            log.error("InfluxDB connection failed (%s@%s)." % (args.influx_ip, args.influx_port))
 
         time.sleep(args.interval - ((time.time() - new_time.timestamp()) % args.interval))
 except KeyboardInterrupt:
-    print("Script aborted...")
+    log.warn("Script aborted...")
 finally:
     if logout(ip, sid, mode):
-        print(datetime.now(), "SMA Device Logout Successfull.")
+        log.info("SMA Device Logout Successfull.")
     else:
-        print(datetime.now(), "SMA Device Logout Failed.")
+        log.error("SMA Device Logout Failed.")
