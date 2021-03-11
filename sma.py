@@ -92,7 +92,7 @@ def login(ip, pw, mode):
     url = mode + "://" + ip + "/dyn/login.json"
     payload = "{\"right\":\"usr\",\"pass\":\"" + pw + "\"}"
     try:
-        response = requests.request("POST", url, data = payload, verify=False)
+        response = requests.request("POST", url, data = payload, verify=False, timeout=(3, 10))
         log.debug(response.json())
         log.debug(response.status_code)
         if response.status_code == 200:
@@ -105,7 +105,7 @@ def login(ip, pw, mode):
 # Logout Function
 def logout(ip, sid, mode):
     url = mode + "://" + ip + "/dyn/logout.json?sid=" + sid
-    response = requests.request("POST", url, data = "{}", verify=False)
+    response = requests.request("POST", url, data = "{}", verify=False, timeout=(3, 10))
     if response.status_code == 200:
         return True
     else:
@@ -123,7 +123,7 @@ def query_values(ip, mode):
             measurements.append(measurement_list[measurement]['key'])
     payload = json.dumps({"destDev": [], "keys": measurements})
     try:
-        response = requests.request("POST", url, data = payload, verify=False)
+        response = requests.request("POST", url, data = payload, verify=False, timeout=(3, 10))
         log.debug(response.json())
         log.debug(response.status_code)
         if "err" in response.json():
@@ -186,7 +186,7 @@ def query_values(ip, mode):
 def session_check(ip, mode):
     url = mode + "://" + ip + "/dyn/sessionCheck.json"
     try:
-        response = requests.request("POST", url, data = "{}", verify=False)
+        response = requests.request("POST", url, data = "{}", verify=False, timeout=(3, 10))
     except:
         return (False, "No response from SMA Device (" + ip + ")!")
     #log.debug(response.json())
