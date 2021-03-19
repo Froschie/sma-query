@@ -12,6 +12,11 @@ then
     echo "Arm architecture"
     curl -o /tmp/s6overlay.tar.gz -L https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-armhf.tar.gz
     fi
+    if [ "${arch}" == 'aarch64' ];
+    then
+    echo "Arm64 architecture"
+    curl -o /tmp/s6overlay.tar.gz -L https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-aarch64.tar.gz
+    fi
 else
     echo "Platform: "${TARGETPLATFORM}
     if [ "${TARGETPLATFORM}" == 'linux/amd64' ];
@@ -23,5 +28,10 @@ else
     then
     echo "Arm architecture"
     curl -o /tmp/s6overlay.tar.gz -L https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-armhf.tar.gz
+    fi
+    if [ "${TARGETPLATFORM}" == 'linux/arm64' ];
+    then
+    echo "Arm64 architecture"
+    curl -o /tmp/s6overlay.tar.gz -L https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-aarch64.tar.gz
     fi
 fi

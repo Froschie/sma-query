@@ -30,7 +30,7 @@ jobs:
         id: prepare
         run: |
           DOCKER_IMAGE=froschie/sma-query
-          DOCKER_PLATFORMS=linux/arm/v7,linux/amd64
+          DOCKER_PLATFORMS=linux/arm/v7,linux/amd64,linux/arm64
           VERSION=3.0
           TAGS="--tag ${DOCKER_IMAGE}:${VERSION} --tag ${DOCKER_IMAGE}:latest"
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
