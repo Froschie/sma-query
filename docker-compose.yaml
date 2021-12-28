@@ -19,6 +19,7 @@ services:
       - interval=15
       - write=1
       - TZ=Europe/Berlin
+      - log=INFO
     logging:
       driver: "json-file"
       options:

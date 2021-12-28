@@ -58,6 +58,7 @@ docker run -it --rm \
  -e interval=15 \
  -e write=0 \
  -e TZ=Europe/Berlin \
+ -e log=INFO \
  -v $(pwd)/config_queries.json:/config_queries.json \
  -v $(pwd)/config_measurements.json:/config_measurements.json \
  froschie/sma-query
@@ -107,7 +108,7 @@ docker build --tag sma-query .
 ```
 
 ```bash
-docker run -d --name sma-query --restart unless-stopped -e influx_ip=192.168.1.3 -e influx_port=8086 -e influx_user=user -e influx_pw=pw -e sma_ip=192.168.1.2 -e sma_pw=pw -e interval=15 sma-query
+docker run -d --name sma-query --restart unless-stopped -e influx_ip=192.168.1.3 -e influx_port=8086 -e influx_user=user -e influx_pw=pw -e sma_ip=192.168.1.2 -e sma_pw=pw -e interval=15 -e log=INFO sma-query
 ```
 
 

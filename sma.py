@@ -87,7 +87,7 @@ def handler_stop_signals(signum, frame):
         log.info("SMA Device Logout Successfull.")
     else:
         log.error("SMA Device Logout Failed.")
-    log.warn("Container Stopping...")
+    log.warning("Container Stopping...")
     sys.exit(0)
 signal.signal(signal.SIGINT, handler_stop_signals)
 signal.signal(signal.SIGTERM, handler_stop_signals)
@@ -329,7 +329,7 @@ try:
 
         time.sleep(args.interval - ((time.time() - new_time.timestamp()) % args.interval))
 except KeyboardInterrupt:
-    log.warn("Script aborted...")
+    log.warning("Script aborted...")
 finally:
     if logout(ip, sid, mode):
         log.info("SMA Device Logout Successfull.")

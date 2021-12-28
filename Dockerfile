@@ -7,7 +7,7 @@ RUN chmod +x /s6download.sh && bash /s6download.sh && tar xfz /tmp/s6overlay.tar
 ENTRYPOINT ["/init"]
 
 # Image Description
-LABEL version="3.0" description="Script to Query data from SMA Device and store it to InfluxDB"
+LABEL version="3.1" description="Script to Query data from SMA Device and store it to InfluxDB"
 
 # Install Python and Python Modules
 RUN apk add --no-cache python3 py-pip && pip install influxdb && apk del py-pip && apk add py3-requests py3-msgpack
