@@ -306,10 +306,10 @@ try:
                         if measurement_list[measurement]['group'] == group:
                             if solar_values[measurement] is not None:
                                 temp_body['fields'][measurement] = solar_values[measurement]
-                    if str(solar_values['sma_sn']) != "unknown":
+                    if str(solar_values['sma_sn']) != "unknown" and str(solar_values['sma_sn']) != "-" and str(solar_values['sma_type']) != "unknown" and str(solar_values['sma_type']) != "-":
                         json_body.append(temp_body)
                     else:
-                        log.error("Incorrect Serial Number, skipping data, SN: " + str(solar_values['sma_sn']))
+                        log.error("Incorrect Serial Number / Device Type, skipping data, SN: " + str(solar_values['sma_sn']) + ", Device: " + str(solar_values['sma_type']))
                 log.debug("InfluxDB write data DEBUG:" + str(json_body))
                 if args.write == 1:
                     influx_result = client.write_points(json_body)

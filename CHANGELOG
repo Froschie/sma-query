@@ -1,0 +1,10 @@
+v3.2 - 29.12.2021
+- (fix) prevent data writing with invalid serial number and device name
+- add CHANGELOG file
+
+v3.1 - 28.12.2021
+- updated continous queries for InfluxDB to contain Serial Number and Device Type
+- minor fix for debug informations
+
+v3.0 - 19.03.2021
+- create ARM64 Docker Image
