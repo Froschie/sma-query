@@ -144,11 +144,10 @@ def query_values(ip, mode):
 
         points = client_bat.query(f'SELECT last({args.bat_total_consumption}) FROM {args.bat_measurement} WHERE device=\'{args.bat_dev_name}\'').get_points()
         for point in points:
-            battery_total_consumption = float(point["last"])
-
+            battery_total_consumption = int(float(point["last"]) * 1000)
         points = client_bat.query(f'SELECT last({args.bat_total_feed}) FROM {args.bat_measurement} WHERE device=\'{args.bat_dev_name}\'').get_points()
         for point in points:
-            battery_total_feed = float(point["last"])
+            battery_total_feed = int(float(point["last"]) * 1000)
         client_bat.close()
     else:
         battery_charging = 0
