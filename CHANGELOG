@@ -1,3 +1,6 @@
+v4.0 - 21.06.2025
+- add options for single Battery
+
 v3.2 - 29.12.2021
 - (fix) prevent data writing with invalid serial number and device name
 - add CHANGELOG file
