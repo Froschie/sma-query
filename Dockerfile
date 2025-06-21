@@ -3,7 +3,7 @@ FROM alpine:3.12
 ARG TARGETPLATFORM
 RUN apk add --no-cache bash curl tzdata xz tar
 COPY ./s6download.sh /s6download.sh
-RUN chmod +x /s6download.sh && bash /s6download.sh && tar xfz /tmp/s6overlay.tar.xz -C / && rm /tmp/s6overlay.tar.xz && rm /s6download.sh
+RUN chmod +x /s6download.sh && bash /s6download.sh && tar -xf /tmp/s6overlay.tar.xz -C / && rm /tmp/s6overlay.tar.xz && rm /s6download.sh
 ENTRYPOINT ["/init"]
 
 # Image Description
