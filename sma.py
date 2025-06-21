@@ -22,6 +22,16 @@ parser.add_argument('--influx_port', type=str, required=True, default="", help='
 parser.add_argument('--influx_user', type=str, required=True, default="", help='User of the Influx DB Server.')
 parser.add_argument('--influx_pw', type=str, required=True, default="", help='Password of the Influx DB Server.')
 parser.add_argument('--influx_db', type=str, required=True, default="", help='DB name of the Influx DB Server.')
+parser.add_argument('--influx_bat_ip', type=str, required=False, default="", help='IP of the Influx DB Server for Battery.')
+parser.add_argument('--influx_bat_port', type=str, required=False, default="", help='Port of the Influx DB Server for Battery.')
+parser.add_argument('--influx_bat_user', type=str, required=False, default="", help='User of the Influx DB Server for Battery.')
+parser.add_argument('--influx_bat_pw', type=str, required=False, default="", help='Password of the Influx DB Server for Battery.')
+parser.add_argument('--influx_bat_db', type=str, required=False, default="", help='DB name of the Influx DB Server for Battery.')
+parser.add_argument('--bat_measurement', type=str, required=False, default="", help='Name of the Influx DB Measurement for Battery.')
+parser.add_argument('--bat_dev_name', type=str, required=False, default="", help='Name of the Device Name for Battery.')
+parser.add_argument('--bat_value_power', type=str, required=False, default="", help='Name of the Value name for Discharging/Charging Power of Battery.')
+parser.add_argument('--bat_total_consumption', type=str, required=False, default="", help='Name of the Value name total Consumption for Battery.')
+parser.add_argument('--bat_total_feed', type=str, required=False, default="", help='Name of the Value name total Feed for Battery.')
 parser.add_argument('--interval', type=float, required=False, default="30.0", help='Interval in Seconds to query and save the data.')
 parser.add_argument('--write', type=int, required=False, default=1, choices=[0, 1], help='Specify if Data should be written to InfluxDB or not.')
 parser.add_argument('--log', type=str, required=False, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help='Specify Log output.')
@@ -118,6 +128,33 @@ def logout(ip, sid, mode):
 
 # SMA Value Query
 def query_values(ip, mode):
+    # check Battery Charging or Discharging
+    if args.influx_bat_ip:
+        client_bat = InfluxDBClient(host=args.influx_bat_ip, port=args.influx_bat_port, username=args.influx_bat_user, password=args.influx_bat_pw)
+        client_bat.switch_database(args.influx_bat_db)
+
+        points = client_bat.query(f'SELECT last({args.bat_value_power}) FROM {args.bat_measurement} WHERE device=\'{args.bat_dev_name}\'').get_points()
+        for point in points:
+            if point["last"] >= 0:
+                battery_charging = int(point["last"])
+                battery_discharging = 0
+            else:
+                battery_charging = 0
+                battery_discharging = int(point["last"] * -1)
+
+        points = client_bat.query(f'SELECT last({args.bat_total_consumption}) FROM {args.bat_measurement} WHERE device=\'{args.bat_dev_name}\'').get_points()
+        for point in points:
+            battery_total_consumption = float(point["last"])
+
+        points = client_bat.query(f'SELECT last({args.bat_total_feed}) FROM {args.bat_measurement} WHERE device=\'{args.bat_dev_name}\'').get_points()
+        for point in points:
+            battery_total_feed = float(point["last"])
+        client_bat.close()
+    else:
+        battery_charging = 0
+        battery_discharging = 0
+        battery_total_consumption = 0
+        battery_total_feed = 0
     global sid
     global pw
     global descriptions
@@ -178,6 +215,16 @@ def query_values(ip, mode):
         if typ == "calc":
             try:
                 values[measurement] = values[measurement_list[measurement]['field1']]-values[measurement_list[measurement]['field2']]+values[measurement_list[measurement]['field3']]
+                if "battery" in measurement_list[measurement]:
+                    if measurement_list[measurement]['group'] == "actuals" or measurement_list[measurement]['group'] == "phases":
+                        values[measurement] = values[measurement] + battery_discharging - battery_charging
+                    elif measurement_list[measurement]['group'] == "totals":
+                        values[measurement] = values[measurement] + battery_total_feed - battery_total_consumption
+            except:
+                pass
+        if typ == "battery":
+            try:
+                values[measurement] = locals()[measurement_list[measurement]['field1']]
             except:
                 pass
     return values

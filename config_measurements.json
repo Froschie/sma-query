@@ -53,6 +53,7 @@
         "field1": "solar_act",
         "field2": "einspeisung_act",
         "field3": "bezug_act",
+        "battery": "yes",
         "val": 0,
         "name": "Current Consumption Power in W"
     },
@@ -92,8 +93,33 @@
         "field1": "solar_total",
         "field2": "einspeisung_total",
         "field3": "bezug_total",
+        "battery": "yes",
         "val": 0,
         "name": "Total Consumption Power in Wh"
+    },
+    "battery_consumption_total": {
+        "required": "optional",
+        "active": true,
+        "key": null,
+        "group": "totals",
+        "type": "battery",
+        "field1": "battery_total_consumption",
+        "field2": "",
+        "field3": "",
+        "val": 0,
+        "name": "Total Consumption of Battery in Wh"
+    },
+    "battery_feed_total": {
+        "required": "optional",
+        "active": true,
+        "key": null,
+        "group": "totals",
+        "type": "battery",
+        "field1": "battery_total_feed",
+        "field2": "",
+        "field3": "",
+        "val": 0,
+        "name": "Total Feed of Battery in Wh"
     },
     "power_a": {
         "required": "optional",
@@ -323,6 +349,7 @@
         "field1": "power_2",
         "field2": "supply_2",
         "field3": "acquisition_2",
+        "battery": "yes",
         "val": 0,
         "name": "Current AC Power Consumption in W of Phase 2"
     },

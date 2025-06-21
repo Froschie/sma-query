@@ -1,3 +1,3 @@
 #!/usr/bin/with-contenv bash
 
-python3 -u /sma.py --sma_ip $sma_ip --sma_pw $sma_pw --sma_mode $sma_mode --influx_ip $influx_ip --influx_port $influx_port --influx_user $influx_user --influx_pw $influx_pw --influx_db $influx_db --interval $interval --write $write --log $log
+python3 -u /sma.py --sma_ip $sma_ip --sma_pw $sma_pw --sma_mode $sma_mode --influx_ip $influx_ip --influx_port $influx_port --influx_user $influx_user --influx_pw $influx_pw --influx_db $influx_db --influx_bat_ip $influx_bat_ip  --influx_bat_port $influx_bat_port --influx_bat_db $influx_bat_db --influx_bat_user $influx_bat_user --influx_bat_pw $influx_bat_pw --bat_measurement $bat_measurement --bat_dev_name $bat_dev_name --bat_value_power $bat_value_power --bat_total_consumption $bat_total_consumption --bat_total_feed $bat_total_feed --interval $interval --write $write --log $log
